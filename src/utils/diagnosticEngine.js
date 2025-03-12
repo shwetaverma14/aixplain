@@ -1,160 +1,255 @@
-// This is a simplified mock of an AI diagnostic engine
-// In a real application, this would be connected to a trained ML model
-
-// Mock symptom database
-const symptomDatabase = {
-  fever: ['common_cold', 'flu', 'malaria', 'typhoid', 'covid19'],
-  cough: ['common_cold', 'flu', 'tuberculosis', 'pneumonia', 'covid19'],
-  headache: ['migraine', 'tension_headache', 'malaria', 'flu', 'dehydration'],
-  rash: ['chickenpox', 'measles', 'allergic_reaction', 'eczema', 'scabies'],
-  fatigue: ['anemia', 'depression', 'flu', 'diabetes', 'thyroid_disorder'],
-  sore_throat: ['common_cold', 'flu', 'strep_throat', 'tonsillitis', 'laryngitis'],
-  nausea: ['food_poisoning', 'migraine', 'pregnancy', 'motion_sickness', 'gastritis'],
-  dizziness: ['low_blood_pressure', 'anemia', 'dehydration', 'inner_ear_infection', 'anxiety'],
-  abdominal_pain: ['appendicitis', 'gastritis', 'food_poisoning', 'menstrual_cramps', 'kidney_stones'],
-  diarrhea: ['food_poisoning', 'gastroenteritis', 'irritable_bowel_syndrome', 'parasitic_infection', 'celiac_disease']
-}
-
-// Mock disease database with descriptions and recommendations
-const diseaseDatabase = {
-  common_cold: {
-    name: 'Common Cold',
-    description: 'A viral infection of the upper respiratory tract that is usually harmless.',
-    symptoms: ['fever', 'cough', 'sore_throat', 'runny_nose', 'congestion'],
-    recommendations: [
-      'Rest and stay hydrated',
-      'Over-the-counter pain relievers like acetaminophen',
-      'Saline nasal drops or sprays',
-      'Warm liquids like tea with honey'
-    ],
-    urgency: 'low',
-    contagious: true
-  },
-  flu: {
-    name: 'Influenza (Flu)',
-    description: 'A contagious respiratory illness caused by influenza viruses.',
-    symptoms: ['fever', 'cough', 'sore_throat', 'body_aches', 'fatigue', 'headache'],
-    recommendations: [
-      'Rest and stay hydrated',
-      'Antiviral medications if diagnosed early',
-      'Over-the-counter pain relievers',
-      'Avoid contact with others to prevent spread'
-    ],
-    urgency: 'medium',
-    contagious: true
-  },
-  malaria: {
-    name: 'Malaria',
-    description: 'A serious disease caused by a parasite that is transmitted by mosquito bites.',
-    symptoms: ['fever', 'chills', 'headache', 'fatigue', 'muscle_aches'],
-    recommendations: [
-      'Seek medical attention immediately',
-      'Antimalarial medications',
-      'Rest and stay hydrated',
-      'Use mosquito nets and repellents to prevent future infections'
-    ],
-    urgency: 'high',
-    contagious: false
-  },
-  // More diseases would be added in a real application
-}
-
 // Function to diagnose based on symptoms
-export const diagnoseFromSymptoms = (symptoms) => {
-  if (!symptoms || symptoms.length === 0) {
-    return {
-      success: false,
-      message: 'No symptoms provided',
-      possibleConditions: []
+export const diagnoseFromSymptoms = async (symptoms) => {
+  try {
+    if (!symptoms || symptoms.length === 0) {
+      return {
+        success: false,
+        message: 'No symptoms provided',
+        possibleConditions: [],
+      };
     }
-  }
 
-  // Count disease occurrences for each symptom
-  const diseaseCounts = {}
-  
-  symptoms.forEach(symptom => {
-    if (symptomDatabase[symptom]) {
-      symptomDatabase[symptom].forEach(disease => {
-        diseaseCounts[disease] = (diseaseCounts[disease] || 0) + 1
-      })
+    const response = await fetch('http://localhost:5000/api/predict', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ symptoms }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Network response was not ok: ${response.statusText}`);
     }
-  })
 
-  // Sort diseases by count (most likely first)
-  const sortedDiseases = Object.keys(diseaseCounts).sort((a, b) => {
-    return diseaseCounts[b] - diseaseCounts[a]
-  })
+    const data = await response.json();
+    console.log("Backend Response:", data);  // Log the backend response
 
-  // Get top 3 possible conditions with details
-  const possibleConditions = sortedDiseases.slice(0, 3).map(disease => {
-    const details = diseaseDatabase[disease] || {
-      name: disease,
-      description: 'Information not available',
-      recommendations: ['Consult a healthcare professional'],
-      urgency: 'unknown'
+    if (!data || typeof data !== 'object') {
+      throw new Error('Invalid response from the AI model');
     }
+
+    // Map the response to the desired structure
+    console.log("Backend Response:", data);
+    const determineUrgency = (conditionName) => {
+      const highUrgencyDiseases = [
+        "Heart attack", "Paralysis (brain hemorrhage)", "AIDS", "Hepatitis B", "Hepatitis C", 
+        "Hepatitis D", "Hepatitis E", "Alcoholic hepatitis", "Tuberculosis", "Pneumonia"
+      ];
+      
+      const mediumUrgencyDiseases = [
+        "Diabetes", "Hypertension", "Migraine", "Cervical spondylosis", "Jaundice", "Malaria",
+        "Dengue", "Typhoid", "Hepatitis A", "Bronchial Asthma", "GERD", "Gastroenteritis",
+        "Urinary tract infection", "Psoriasis", "Peptic ulcer disease", "Arthritis", "Osteoarthritis"
+      ];
+      
+      const lowUrgencyDiseases = [
+        "Fungal infection", "Allergy", "Chronic cholestasis", "Drug Reaction", 
+        "Common Cold", "Dimorphic hemorrhoids (piles)", "Varicose veins", 
+        "Hypothyroidism", "Hyperthyroidism", "Hypoglycemia", "(Vertigo) Paroxysmal Positional Vertigo",
+        "Acne", "Impetigo"
+      ];
+    
+      if (highUrgencyDiseases.includes(conditionName)) return "high";
+      if (mediumUrgencyDiseases.includes(conditionName)) return "medium";
+      return "low";  // Default to low urgency
+    };
+    
+    const possibleConditions = data.possibleConditions.map((condition) => ({
+      name: condition.name,
+      description: condition.description || "No description available",
+      recommendations: condition.recommendations || [],
+      tests: condition.tests || [],
+      urgency: determineUrgency(condition.name),  // Assign urgency dynamically
+    }));
+    
     
     return {
-      ...details,
-      matchScore: (diseaseCounts[disease] / symptoms.length) * 100
-    }
-  })
-
-  return {
-    success: true,
-    message: 'Diagnosis completed',
-    possibleConditions,
-    disclaimer: 'This is an AI-assisted diagnosis and should not replace professional medical advice. Please consult a healthcare professional for confirmation.'
+      success: true,
+      message: 'Diagnosis completed',
+      possibleConditions,
+      disclaimer: 'This is an AI-assisted diagnosis and should not replace professional medical advice. Please consult a healthcare professional for confirmation.',
+    };
+  } catch (error) {
+    console.error('Error diagnosing symptoms:', error);
+    return {
+      success: false,
+      message: 'An error occurred while diagnosing. Please try again.',
+      possibleConditions: [],
+    };
   }
-}
+};
+
+// Get all available symptoms for the UI
+export const getAllSymptoms = () => {
+  return [
+    { id: 'itching', name: 'Itching' },
+    { id: 'skin_rash', name: 'Skin Rash' },
+    { id: 'nodal_skin_eruptions', name: 'Nodal Skin Eruptions' },
+    { id: 'continuous_sneezing', name: 'Continuous Sneezing' },
+    { id: 'shivering', name: 'Shivering' },
+    { id: 'chills', name: 'Chills' },
+    { id: 'joint_pain', name: 'Joint Pain' },
+    { id: 'stomach_pain', name: 'Stomach Pain' },
+    { id: 'acidity', name: 'Acidity' },
+    { id: 'ulcers_on_tongue', name: 'Ulcers on Tongue' },
+    { id: 'muscle_wasting', name: 'Muscle Wasting' },
+    { id: 'vomiting', name: 'Vomiting' },
+    { id: 'burning_micturition', name: 'Burning Micturition' },
+    { id: 'spotting_urination', name: 'Spotting Urination' },
+    { id: 'fatigue', name: 'Fatigue' },
+    { id: 'weight_gain', name: 'Weight Gain' },
+    { id: 'anxiety', name: 'Anxiety' },
+    { id: 'cold_hands_and_feets', name: 'Cold Hands and Feet' },
+    { id: 'mood_swings', name: 'Mood Swings' },
+    { id: 'weight_loss', name: 'Weight Loss' },
+    { id: 'restlessness', name: 'Restlessness' },
+    { id: 'lethargy', name: 'Lethargy' },
+    { id: 'patches_in_throat', name: 'Patches in Throat' },
+    { id: 'irregular_sugar_level', name: 'Irregular Sugar Level' },
+    { id: 'cough', name: 'Cough' },
+    { id: 'high_fever', name: 'High Fever' },
+    { id: 'sunken_eyes', name: 'Sunken Eyes' },
+    { id: 'breathlessness', name: 'Breathlessness' },
+    { id: 'sweating', name: 'Sweating' },
+    { id: 'dehydration', name: 'Dehydration' },
+    { id: 'indigestion', name: 'Indigestion' },
+    { id: 'headache', name: 'Headache' },
+    { id: 'yellowish_skin', name: 'Yellowish Skin' },
+    { id: 'dark_urine', name: 'Dark Urine' },
+    { id: 'nausea', name: 'Nausea' },
+    { id: 'loss_of_appetite', name: 'Loss of Appetite' },
+    { id: 'pain_behind_the_eyes', name: 'Pain Behind the Eyes' },
+    { id: 'back_pain', name: 'Back Pain' },
+    { id: 'constipation', name: 'Constipation' },
+    { id: 'abdominal_pain', name: 'Abdominal Pain' },
+    { id: 'diarrhoea', name: 'Diarrhoea' },
+    { id: 'mild_fever', name: 'Mild Fever' },
+    { id: 'yellow_urine', name: 'Yellow Urine' },
+    { id: 'yellowing_of_eyes', name: 'Yellowing of Eyes' },
+    { id: 'acute_liver_failure', name: 'Acute Liver Failure' },
+    { id: 'fluid_overload', name: 'Fluid Overload' },
+    { id: 'swelling_of_stomach', name: 'Swelling of Stomach' },
+    { id: 'swelled_lymph_nodes', name: 'Swelled Lymph Nodes' },
+    { id: 'malaise', name: 'Malaise' },
+    { id: 'blurred_and_distorted_vision', name: 'Blurred and Distorted Vision' },
+    { id: 'phlegm', name: 'Phlegm' },
+    { id: 'throat_irritation', name: 'Throat Irritation' },
+    { id: 'redness_of_eyes', name: 'Redness of Eyes' },
+    { id: 'sinus_pressure', name: 'Sinus Pressure' },
+    { id: 'runny_nose', name: 'Runny Nose' },
+    { id: 'congestion', name: 'Congestion' },
+    { id: 'chest_pain', name: 'Chest Pain' },
+    { id: 'weakness_in_limbs', name: 'Weakness in Limbs' },
+    { id: 'fast_heart_rate', name: 'Fast Heart Rate' },
+    { id: 'pain_during_bowel_movements', name: 'Pain During Bowel Movements' },
+    { id: 'pain_in_anal_region', name: 'Pain in Anal Region' },
+    { id: 'bloody_stool', name: 'Bloody Stool' },
+    { id: 'irritation_in_anus', name: 'Irritation in Anus' },
+    { id: 'neck_pain', name: 'Neck Pain' },
+    { id: 'dizziness', name: 'Dizziness' },
+    { id: 'cramps', name: 'Cramps' },
+    { id: 'bruising', name: 'Bruising' },
+    { id: 'obesity', name: 'Obesity' },
+    { id: 'swollen_legs', name: 'Swollen Legs' },
+    { id: 'swollen_blood_vessels', name: 'Swollen Blood Vessels' },
+    { id: 'puffy_face_and_eyes', name: 'Puffy Face and Eyes' },
+    { id: 'enlarged_thyroid', name: 'Enlarged Thyroid' },
+    { id: 'brittle_nails', name: 'Brittle Nails' },
+    { id: 'swollen_extremeties', name: 'Swollen Extremities' },
+    { id: 'excessive_hunger', name: 'Excessive Hunger' },
+    { id: 'extra_marital_contacts', name: 'Extra Marital Contacts' },
+    { id: 'drying_and_tingling_lips', name: 'Drying and Tingling Lips' },
+    { id: 'slurred_speech', name: 'Slurred Speech' },
+    { id: 'knee_pain', name: 'Knee Pain' },
+    { id: 'hip_joint_pain', name: 'Hip Joint Pain' },
+    { id: 'muscle_weakness', name: 'Muscle Weakness' },
+    { id: 'stiff_neck', name: 'Stiff Neck' },
+    { id: 'swelling_joints', name: 'Swelling Joints' },
+    { id: 'movement_stiffness', name: 'Movement Stiffness' },
+    { id: 'spinning_movements', name: 'Spinning Movements' },
+    { id: 'loss_of_balance', name: 'Loss of Balance' },
+    { id: 'unsteadiness', name: 'Unsteadiness' },
+    { id: 'weakness_of_one_body_side', name: 'Weakness of One Body Side' },
+    { id: 'loss_of_smell', name: 'Loss of Smell' },
+    { id: 'bladder_discomfort', name: 'Bladder Discomfort' },
+    { id: 'foul_smell_of_urine', name: 'Foul Smell of Urine' },
+    { id: 'continuous_feel_of_urine', name: 'Continuous Feel of Urine' },
+    { id: 'passage_of_gases', name: 'Passage of Gases' },
+    { id: 'internal_itching', name: 'Internal Itching' },
+    { id: 'toxic_look_(typhos)', name: 'Toxic Look (Typhos)' },
+    { id: 'depression', name: 'Depression' },
+    { id: 'irritability', name: 'Irritability' },
+    { id: 'muscle_pain', name: 'Muscle Pain' },
+    { id: 'altered_sensorium', name: 'Altered Sensorium' },
+    { id: 'red_spots_over_body', name: 'Red Spots Over Body' },
+    { id: 'belly_pain', name: 'Belly Pain' },
+    { id: 'abnormal_menstruation', name: 'Abnormal Menstruation' },
+    { id: 'dischromic_patches', name: 'Dischromic Patches' },
+    { id: 'watering_from_eyes', name: 'Watering from Eyes' },
+    { id: 'increased_appetite', name: 'Increased Appetite' },
+    { id: 'polyuria', name: 'Polyuria' },
+    { id: 'family_history', name: 'Family History' },
+    { id: 'mucoid_sputum', name: 'Mucoid Sputum' },
+    { id: 'rusty_sputum', name: 'Rusty Sputum' },
+    { id: 'lack_of_concentration', name: 'Lack of Concentration' },
+    { id: 'visual_disturbances', name: 'Visual Disturbances' },
+    { id: 'receiving_blood_transfusion', name: 'Receiving Blood Transfusion' },
+    { id: 'receiving_unsterile_injections', name: 'Receiving Unsterile Injections' },
+    { id: 'coma', name: 'Coma' },
+    { id: 'stomach_bleeding', name: 'Stomach Bleeding' },
+    { id: 'distention_of_abdomen', name: 'Distention of Abdomen' },
+    { id: 'history_of_alcohol_consumption', name: 'History of Alcohol Consumption' },
+    { id: 'blood_in_sputum', name: 'Blood in Sputum' },
+    { id: 'prominent_veins_on_calf', name: 'Prominent Veins on Calf' },
+    { id: 'palpitations', name: 'Palpitations' },
+    { id: 'painful_walking', name: 'Painful Walking' },
+    { id: 'pus_filled_pimples', name: 'Pus Filled Pimples' },
+    { id: 'blackheads', name: 'Blackheads' },
+    { id: 'scurring', name: 'Scurring' },
+    { id: 'skin_peeling', name: 'Skin Peeling' },
+    { id: 'silver_like_dusting', name: 'Silver-like Dusting' },
+    { id: 'small_dents_in_nails', name: 'Small Dents in Nails' },
+    { id: 'inflammatory_nails', name: 'Inflammatory Nails' },
+    { id: 'blister', name: 'Blister' },
+    { id: 'red_sore_around_nose', name: 'Red Sore Around Nose' },
+    { id: 'yellow_crust_ooze', name: 'Yellow Crust Ooze' },
+  ];
+};
 
 // Mock function for image-based diagnosis
 export const diagnoseFromImage = (imageData) => {
   // In a real app, this would send the image to an ML model
   // For this mock, we'll return random skin conditions
-  
+
   const skinConditions = [
     {
       name: 'Eczema',
       description: 'A condition that makes your skin red and itchy',
       recommendations: ['Moisturize regularly', 'Avoid triggers', 'Topical corticosteroids'],
-      urgency: 'medium'
+      urgency: 'medium',
     },
     {
       name: 'Psoriasis',
       description: 'A skin disease that causes red, itchy scaly patches',
       recommendations: ['Topical treatments', 'Light therapy', 'Oral medications'],
-      urgency: 'medium'
+      urgency: 'medium',
     },
     {
       name: 'Acne',
       description: 'A skin condition that occurs when hair follicles plug with oil and dead skin cells',
       recommendations: ['Wash face twice daily', 'Use over-the-counter acne products', 'Avoid touching face'],
-      urgency: 'low'
-    }
-  ]
-  
+      urgency: 'low',
+    },
+  ];
+
   // Randomly select a condition
-  const randomIndex = Math.floor(Math.random() * skinConditions.length)
-  
+  const randomIndex = Math.floor(Math.random() * skinConditions.length);
+
   return {
     success: true,
     message: 'Image analysis completed',
     condition: skinConditions[randomIndex],
     confidence: Math.floor(Math.random() * 30) + 70, // Random confidence between 70-99%
-    disclaimer: 'This is an AI-assisted diagnosis and should not replace professional medical advice. Please consult a healthcare professional for confirmation.'
-  }
-}
-
-// Get all available symptoms for the UI
-export const getAllSymptoms = () => {
-  return Object.keys(symptomDatabase).map(symptom => ({
-    id: symptom,
-    name: symptom.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())
-  }))
-}
-
-// Get disease information
-export const getDiseaseInfo = (diseaseId) => {
-  return diseaseDatabase[diseaseId] || null
-}
+    disclaimer: 'This is an AI-assisted diagnosis and should not replace professional medical advice. Please consult a healthcare professional for confirmation.',
+  };
+};
