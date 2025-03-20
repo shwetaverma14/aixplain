@@ -31,7 +31,18 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
+/* Dark Mode Scrollbar */
+.dark ::-webkit-scrollbar-track {
+  background: #2d2d2d;
+}
 
+.dark ::-webkit-scrollbar-thumb {
+  background: #555;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #777;
+}
 /* Voice input animation */
 .voice-wave {
   display: flex;
@@ -48,6 +59,9 @@
   background-color: #0D6EFD;
   border-radius: 50%;
   animation: voice-wave 1.5s infinite ease-in-out;
+}
+.dark .voice-wave span {
+  background-color: #1E90FF;
 }
 
 .voice-wave span:nth-child(2) {
@@ -88,7 +102,17 @@
   border-color: #0D6EFD;
   background-color: rgba(13, 110, 253, 0.05);
 }
+/* Dark Mode */
+.dark .image-upload-area {
+  border: 2px dashed #555;
+  background-color: #222;
+  color: #ddd;
+}
 
+.dark .image-upload-area:hover, .dark .image-upload-area.active {
+  border-color: #0D6EFD;
+  background-color: rgba(13, 110, 253, 0.1);
+}
 /* Symptom checker styles */
 .symptom-tag {
   display: inline-block;
@@ -106,6 +130,20 @@
 }
 
 .symptom-tag.selected {
+  background-color: #0D6EFD;
+  color: white;
+}
+/* Dark mode styles */
+.dark .symptom-tag {
+  background-color: #333;
+  color: #ddd;
+}
+
+.dark .symptom-tag:hover {
+  background-color: #444;
+}
+
+.dark .symptom-tag.selected {
   background-color: #0D6EFD;
   color: white;
 }

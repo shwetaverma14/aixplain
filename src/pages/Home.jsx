@@ -49,8 +49,8 @@ function Home() {
     <div>
       <OfflineIndicator />
       
-      <section className="mb-10">
-        <div className="text-center mb-8">
+      <section className="mb-10 ">
+        <div className="text-center mb-8" >
           <h1 className="text-3xl md:text-4xl font-bold mb-4">AI-Based Diagnostic Tool for Rural Clinics</h1>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto">
             Empowering healthcare workers in rural areas with AI-assisted diagnosis, even in areas with limited connectivity.

@@ -1,162 +1,188 @@
-import { useState, useEffect, useRef } from 'react'
-import { diagnoseFromSymptoms } from '../utils/diagnosticEngine'
-import OfflineIndicator from '../components/common/OfflineIndicator'
-import LoadingSpinner from '../components/common/LoadingSpinner'
-import { useAppContext } from '../context/AppContext'
+import { useState, useEffect, useRef } from 'react';
+import { diagnoseFromSymptoms } from '../utils/diagnosticEngine';
+import OfflineIndicator from '../components/common/OfflineIndicator';
+import LoadingSpinner from '../components/common/LoadingSpinner';
+import { useAppContext } from '../context/AppContext';
 
 function VoiceInput() {
-  const [isRecording, setIsRecording] = useState(false)
-  const [transcript, setTranscript] = useState('')
-  const [isProcessing, setIsProcessing] = useState(false)
-  const [result, setResult] = useState(null)
-  const [error, setError] = useState(null)
-  const { isOnline, language } = useAppContext()
-  
-  const recognitionRef = useRef(null)
-  
+  const [isRecording, setIsRecording] = useState(false);
+  const [transcript, setTranscript] = useState('');
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState(null);
+  const { isOnline, language } = useAppContext();
+
+  const recognitionRef = useRef(null);
+
   // Check if browser supports speech recognition
-  const isSpeechRecognitionSupported = 'SpeechRecognition' in window || 'webkitSpeechRecognition' in window
-  
+  const isSpeechRecognitionSupported = 'SpeechRecognition' in window || 'webkitSpeechRecognition' in window;
+
   useEffect(() => {
     if (isSpeechRecognitionSupported) {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition
-      recognitionRef.current = new SpeechRecognition()
-      recognitionRef.current.continuous = true
-      recognitionRef.current.interimResults = true
-      recognitionRef.current.lang = language === 'en' ? 'en-US' : 'en-US' // Default to English, would support more languages in a real app
-      
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognitionRef.current = new SpeechRecognition();
+      recognitionRef.current.continuous = true;
+      recognitionRef.current.interimResults = true;
+      recognitionRef.current.lang = language === 'en' ? 'en-US' : 'en-US'; // Default to English, would support more languages in a real app
+
       recognitionRef.current.onresult = (event) => {
-        let interimTranscript = ''
-        let finalTranscript = ''
-        
+        let interimTranscript = '';
+        let finalTranscript = '';
+
         for (let i = event.resultIndex; i < event.results.length; i++) {
-          const transcript = event.results[i][0].transcript
+          const transcript = event.results[i][0].transcript;
           if (event.results[i].isFinal) {
-            finalTranscript += transcript
+            finalTranscript += transcript;
           } else {
-            interimTranscript += transcript
+            interimTranscript += transcript;
           }
         }
-        
-        setTranscript(prevTranscript => prevTranscript + finalTranscript + interimTranscript)
-      }
-      
+
+        setTranscript((prevTranscript) => prevTranscript + finalTranscript + interimTranscript);
+      };
+
       recognitionRef.current.onerror = (event) => {
-        console.error('Speech recognition error', event.error)
-        setError(`Error: ${event.error}. Please try again.`)
-        stopRecording()
-      }
+        console.error('Speech recognition error', event.error);
+        setError(`Error: ${event.error}. Please try again.`);
+        stopRecording();
+      };
     }
-    
+
     return () => {
       if (recognitionRef.current) {
-        recognitionRef.current.stop()
+        recognitionRef.current.stop();
       }
-    }
-  }, [language])
-  
+    };
+  }, [language]);
+
   const startRecording = () => {
     if (!isSpeechRecognitionSupported) {
-      setError('Speech recognition is not supported in your browser.')
-      return
+      setError('Speech recognition is not supported in your browser.');
+      return;
     }
-    
+
     if (!isOnline) {
-      setError('Voice input requires an internet connection.')
-      return
+      setError('Voice input requires an internet connection.');
+      return;
     }
-    
-    setError(null)
-    setTranscript('')
-    setIsRecording(true)
-    recognitionRef.current.start()
-  }
-  
+
+    setError(null);
+    setTranscript('');
+    setIsRecording(true);
+    recognitionRef.current.start();
+  };
+
   const stopRecording = () => {
     if (recognitionRef.current) {
-      recognitionRef.current.stop()
+      recognitionRef.current.stop();
     }
-    setIsRecording(false)
-  }
-  
-  const handleProcess = () => {
+    setIsRecording(false);
+  };
+
+  const handleProcess = async () => {
     if (!transcript.trim()) {
-      setError('Please record some symptoms first.')
-      return
+      setError('Please record some symptoms first.');
+      return;
     }
-    
-    setIsProcessing(true)
-    setResult(null)
-    
-    // Extract symptoms from transcript (simplified for demo)
-    // In a real app, this would use NLP to extract symptoms accurately
-    const symptoms = []
+
+    setIsProcessing(true);
+    setResult(null);
+
+    // Extract symptoms from transcript
+    const symptoms = [];
     const commonSymptoms = [
-      'fever', 'cough', 'headache', 'rash', 'fatigue', 
-      'sore throat', 'nausea', 'dizziness', 'abdominal pain', 'diarrhea'
-    ]
-    
-    commonSymptoms.forEach(symptom => {
+      'back_pain', 'constipation', 'abdominal_pain', 'diarrhoea', 'yellow_urine', 'fever', 'cough', 'headache',
+      'yellowing_of_eyes', 'acute_liver_failure', 'fluid_overload', 'swelling_of_stomach',
+      'swelled_lymph_nodes', 'malaise', 'blurred_and_distorted_vision', 'phlegm', 'throat_irritation',
+      'redness_of_eyes', 'sinus_pressure', 'runny_nose', 'congestion', 'chest_pain', 'weakness_in_limbs',
+      'fast_heart_rate', 'pain_during_bowel_movements', 'pain_in_anal_region', 'bloody_stool',
+      'irritation_in_anus', 'neck_pain', 'dizziness', 'cramps', 'bruising', 'obesity', 'swollen_legs',
+      'swollen_blood_vessels', 'puffy_face_and_eyes', 'enlarged_thyroid', 'brittle_nails',
+      'swollen_extremeties', 'excessive_hunger', 'extra_marital_contacts', 'drying_and_tingling_lips',
+      'slurred_speech', 'knee_pain', 'hip_joint_pain', 'muscle_weakness', 'stiff_neck', 'swelling_joints',
+      'movement_stiffness', 'spinning_movements', 'loss_of_balance', 'unsteadiness',
+      'weakness_of_one_body_side', 'loss_of_smell', 'bladder_discomfort', 'foul_smell_of_urine',
+      'continuous_feel_of_urine', 'passage_of_gases', 'internal_itching', 'toxic_look_(typhos)',
+      'depression', 'irritability', 'muscle_pain', 'altered_sensorium', 'red_spots_over_body', 'belly_pain',
+      'abnormal_menstruation', 'dischromic_patches', 'watering_from_eyes', 'increased_appetite', 'polyuria',
+      'family_history', 'mucoid_sputum', 'rusty_sputum', 'lack_of_concentration', 'visual_disturbances',
+      'receiving_blood_transfusion', 'receiving_unsterile_injections', 'coma', 'stomach_bleeding',
+      'distention_of_abdomen', 'history_of_alcohol_consumption', 'fluid_overload.1', 'blood_in_sputum',
+      'prominent_veins_on_calf', 'palpitations', 'painful_walking', 'pus_filled_pimples', 'blackheads',
+      'scurring', 'skin_peeling', 'silver_like_dusting', 'small_dents_in_nails', 'inflammatory_nails',
+      'blister', 'red_sore_around_nose', 'yellow_crust_ooze'
+    ];
+
+    commonSymptoms.forEach((symptom) => {
       if (transcript.toLowerCase().includes(symptom)) {
-        symptoms.push(symptom.replace(' ', '_'))
+        symptoms.push(symptom.replace(' ', '_'));
       }
-    })
-    
+    });
+
+    // Remove duplicate symptoms using Set
+    const uniqueSymptoms = [...new Set(symptoms)];
+
     // If no symptoms found, use a fallback
-    if (symptoms.length === 0) {
-      setIsProcessing(false)
-      setError('No recognizable symptoms found in your description. Please try again with more specific symptoms.')
-      return
+    if (uniqueSymptoms.length === 0) {
+      setIsProcessing(false);
+      setError('No recognizable symptoms found in your description. Please try again with more specific symptoms.');
+      return;
     }
-    
+
     // Process with diagnostic engine
-    setTimeout(() => {
-      const diagnosisResult = diagnoseFromSymptoms(symptoms)
-      setResult(diagnosisResult)
-      setIsProcessing(false)
-    }, 1500)
-  }
-  
+    try {
+      const diagnosisResult = await diagnoseFromSymptoms(uniqueSymptoms);
+      setResult({
+        ...diagnosisResult,
+        detectedSymptoms: uniqueSymptoms, // Add unique detected symptoms to the result
+      });
+    } catch (err) {
+      setError('An error occurred while processing your symptoms. Please try again.');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   const resetForm = () => {
-    setTranscript('')
-    setResult(null)
-    setError(null)
-  }
-  
+    setTranscript('');
+    setResult(null);
+    setError(null);
+  };
+
   return (
     <div>
       <OfflineIndicator />
-      
+
       <div className="mb-6">
         <h1 className="text-2xl font-bold mb-2">Voice Input</h1>
         <p className="text-gray-600">
           Describe symptoms using voice for AI-assisted diagnosis.
         </p>
       </div>
-      
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Voice Input Section */}
         <div className="card">
           <h2 className="text-xl font-semibold mb-4">Speak Symptoms</h2>
-          
+
           {error && (
             <div className="mb-4 p-3 bg-red-50 border-l-4 border-red-500 text-red-700">
               {error}
             </div>
           )}
-          
+
           {!isSpeechRecognitionSupported && (
             <div className="mb-4 p-3 bg-yellow-50 border-l-4 border-yellow-400 text-yellow-700">
               Your browser doesn't support speech recognition. Please try using a modern browser like Chrome.
             </div>
           )}
-          
+
           <div className="mb-6">
             <div className="flex justify-center mb-4">
               <button
                 className={`w-16 h-16 rounded-full flex items-center justify-center ${
-                  isRecording 
-                    ? 'bg-red-500 text-white animate-pulse' 
+                  isRecording
+                    ? 'bg-red-500 text-white animate-pulse'
                     : 'bg-primary text-white'
                 }`}
                 onClick={isRecording ? stopRecording : startRecording}
@@ -174,7 +200,7 @@ function VoiceInput() {
                 )}
               </button>
             </div>
-            
+
             {isRecording && (
               <div className="voice-wave flex justify-center mb-2">
                 <span></span>
@@ -184,12 +210,12 @@ function VoiceInput() {
                 <span></span>
               </div>
             )}
-            
+
             <p className="text-center text-sm mb-4">
               {isRecording ? 'Recording... Click the button to stop' : 'Click the microphone to start recording'}
             </p>
           </div>
-          
+
           <div className="mb-4">
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Transcript
@@ -202,16 +228,16 @@ function VoiceInput() {
               )}
             </div>
           </div>
-          
+
           <div className="flex justify-between">
-            <button 
+            <button
               className="btn btn-secondary"
               onClick={resetForm}
               disabled={isRecording}
             >
               Clear
             </button>
-            <button 
+            <button
               className="btn btn-primary"
               onClick={handleProcess}
               disabled={isRecording || !transcript.trim() || !isOnline}
@@ -219,7 +245,7 @@ function VoiceInput() {
               Process Symptoms
             </button>
           </div>
-          
+
           <div className="mt-6">
             <h3 className="font-medium mb-2">Tips for better results:</h3>
             <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
@@ -230,11 +256,11 @@ function VoiceInput() {
             </ul>
           </div>
         </div>
-        
+
         {/* Results Section */}
         <div className="card">
           <h2 className="text-xl font-semibold mb-4">Analysis Results</h2>
-          
+
           {isProcessing ? (
             <div className="flex flex-col items-center justify-center py-12">
               <LoadingSpinner size="large" message="Processing your symptoms..." />
@@ -248,25 +274,18 @@ function VoiceInput() {
                 <p className="font-medium">Disclaimer:</p>
                 <p>{result.disclaimer}</p>
               </div>
-              
+
               <div className="mb-6">
                 <h3 className="text-lg font-medium mb-2">Detected Symptoms</h3>
                 <div className="flex flex-wrap gap-2 mb-4">
-                  {result.possibleConditions.length > 0 && 
-                    result.possibleConditions[0].symptoms && 
-                    result.possibleConditions[0].symptoms.map((symptom, index) => (
-                      <div key={index} className="symptom-tag selected">
-                        {symptom.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                      </div>
-                    ))}
-                  {(!result.possibleConditions.length || 
-                    !result.possibleConditions[0].symptoms || 
-                    !result.possibleConditions[0].symptoms.length) && (
-                    <p className="text-gray-500 italic">No specific symptoms detected</p>
-                  )}
+                  {result.detectedSymptoms.map((symptom, index) => (
+                    <div key={index} className="symptom-tag selected">
+                      {symptom.replace('_', ' ').replace(/\b\w/g, (l) => l.toUpperCase())}
+                    </div>
+                  ))}
                 </div>
               </div>
-              
+
               <div className="mb-6">
                 <h3 className="text-lg font-medium mb-2">Possible Conditions</h3>
                 {result.possibleConditions.length > 0 ? (
@@ -274,11 +293,15 @@ function VoiceInput() {
                     <div key={index} className="mb-4 p-4 border rounded-md">
                       <div className="flex justify-between items-start">
                         <h4 className="text-lg font-semibold">{condition.name}</h4>
-                        <div className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          condition.urgency === 'high' ? 'bg-red-100 text-red-800' :
-                          condition.urgency === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-green-100 text-green-800'
-                        }`}>
+                        <div
+                          className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            condition.urgency === 'high'
+                              ? 'bg-red-100 text-red-800'
+                              : condition.urgency === 'medium'
+                              ? 'bg-yellow-100 text-yellow-800'
+                              : 'bg-green-100 text-green-800'
+                          }`}
+                        >
                           {condition.urgency.charAt(0).toUpperCase() + condition.urgency.slice(1)} Urgency
                         </div>
                       </div>
@@ -297,8 +320,8 @@ function VoiceInput() {
                   <p className="text-gray-500 italic">No conditions detected based on the provided symptoms</p>
                 )}
               </div>
-              
-              <button 
+
+              <button
                 className="btn btn-primary w-full"
                 onClick={() => window.print()}
               >
@@ -319,7 +342,7 @@ function VoiceInput() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default VoiceInput
+export default VoiceInput;
