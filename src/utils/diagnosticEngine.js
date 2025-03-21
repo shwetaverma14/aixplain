@@ -217,39 +217,26 @@ export const getAllSymptoms = () => {
 };
 
 // Mock function for image-based diagnosis
-export const diagnoseFromImage = (imageData) => {
-  // In a real app, this would send the image to an ML model
-  // For this mock, we'll return random skin conditions
 
-  const skinConditions = [
-    {
-      name: 'Eczema',
-      description: 'A condition that makes your skin red and itchy',
-      recommendations: ['Moisturize regularly', 'Avoid triggers', 'Topical corticosteroids'],
-      urgency: 'medium',
-    },
-    {
-      name: 'Psoriasis',
-      description: 'A skin disease that causes red, itchy scaly patches',
-      recommendations: ['Topical treatments', 'Light therapy', 'Oral medications'],
-      urgency: 'medium',
-    },
-    {
-      name: 'Acne',
-      description: 'A skin condition that occurs when hair follicles plug with oil and dead skin cells',
-      recommendations: ['Wash face twice daily', 'Use over-the-counter acne products', 'Avoid touching face'],
-      urgency: 'low',
-    },
-  ];
+export const diagnoseFromImage = async (imageFile) => {
+  try {
+    const formData = new FormData();
+    formData.append("image", imageFile);
 
-  // Randomly select a condition
-  const randomIndex = Math.floor(Math.random() * skinConditions.length);
+    const response = await fetch("http://localhost:5000/analyze-image", {
+      method: "POST",
+      body: formData,
+    });
 
-  return {
-    success: true,
-    message: 'Image analysis completed',
-    condition: skinConditions[randomIndex],
-    confidence: Math.floor(Math.random() * 30) + 70, // Random confidence between 70-99%
-    disclaimer: 'This is an AI-assisted diagnosis and should not replace professional medical advice. Please consult a healthcare professional for confirmation.',
-  };
+    const data = await response.json();
+
+    if (response.ok) {
+      return { success: true, diagnosis: data.diagnosis };
+    } else {
+      return { success: false, error: data.error || "Failed to analyze image." };
+    }
+  } catch (error) {
+    console.error("Error analyzing image:", error);
+    return { success: false, error: "Server error. Try again later." };
+  }
 };
