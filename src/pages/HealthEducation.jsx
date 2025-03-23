@@ -2,7 +2,6 @@ import { useState } from 'react'
 import OfflineIndicator from '../components/common/OfflineIndicator'
 
 function HealthEducation() {
-  const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [selectedScheme, setSelectedScheme] = useState(null)
   
@@ -160,13 +159,6 @@ function HealthEducation() {
   ]
   
   // Filter schemes based on search and category
-  const filteredSchemes = schemes.filter(scheme => {
-    const matchesSearch = scheme.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                         scheme.description.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesCategory = selectedCategory === 'all' || scheme.category === selectedCategory
-    
-    return matchesSearch && matchesCategory
-  })
   
   return (
     <div>
@@ -178,26 +170,7 @@ function HealthEducation() {
           Explore government healthcare schemes and programs available for citizens.
         </p>
       </div>
-      
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Sidebar */}
-        <div className="lg:col-span-1">
-          <div className="card mb-6">
-            <h2 className="text-xl font-semibold mb-4">Search Schemes</h2>
-            
-            <div className="mb-4">
-              <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-1">
-                Search
-              </label>
-              <input
-                type="text"
-                id="search"
-                className="input-field"
-                placeholder="Search schemes..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
+
             
             <div className="mb-4">
               <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
