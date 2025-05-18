@@ -7,18 +7,41 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
+# Node.js and React
+node_modules/       # Exclude npm dependencies
+dist/              # Exclude build folders (if using Vite)
+dist-ssr/
+build/             # Exclude React's production build (if serving from Flask)
 *.local
 
-# Editor directories and files
+# Python and Flask
+__pycache__/       # Exclude Python cache
+*.py[cod]
+*.so
+.Python
+env/               # Exclude virtual environment
+venv/
+.venv/
+.env               # Exclude environment files (but keep .env.example)
+.env.local
+.env.development
+.env.production
+
+# Editor and IDE
 .vscode/*
 !.vscode/extensions.json
-.idea
+.idea/
 .DS_Store
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+
+# Flask-specific
+instance/          # Exclude Flask instance folder
+*.sqlite           # Exclude local SQLite databases
+
+# Render/Deployment
+.render/           # Exclude Render-specific files (if any)
+node_modules
