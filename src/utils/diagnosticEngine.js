@@ -9,7 +9,7 @@ export const diagnoseFromSymptoms = async (symptoms) => {
       };
     }
 
-    const response = await fetch('http://localhost:5000/api/predict', {
+    const response = await fetch('https://aixplain-zmis.onrender.com/api/predict', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -22,14 +22,13 @@ export const diagnoseFromSymptoms = async (symptoms) => {
     }
 
     const data = await response.json();
-    console.log("Backend Response:", data);  // Log the backend response
+    console.log("Backend Response:", data);
 
-    if (!data || typeof data !== 'object') {
+    if (!data || !data.possibleConditions) {
       throw new Error('Invalid response from the AI model');
     }
 
-    // Map the response to the desired structure
-    console.log("Backend Response:", data);
+    // Function to determine urgency level
     const determineUrgency = (conditionName) => {
       const highUrgencyDiseases = [
         "Heart attack", "Paralysis (brain hemorrhage)", "AIDS", "Hepatitis B", "Hepatitis C", 
@@ -42,27 +41,20 @@ export const diagnoseFromSymptoms = async (symptoms) => {
         "Urinary tract infection", "Psoriasis", "Peptic ulcer disease", "Arthritis", "Osteoarthritis"
       ];
       
-      const lowUrgencyDiseases = [
-        "Fungal infection", "Allergy", "Chronic cholestasis", "Drug Reaction", 
-        "Common Cold", "Dimorphic hemorrhoids (piles)", "Varicose veins", 
-        "Hypothyroidism", "Hyperthyroidism", "Hypoglycemia", "(Vertigo) Paroxysmal Positional Vertigo",
-        "Acne", "Impetigo"
-      ];
-    
       if (highUrgencyDiseases.includes(conditionName)) return "high";
       if (mediumUrgencyDiseases.includes(conditionName)) return "medium";
-      return "low";  // Default to low urgency
+      return "low";
     };
-    
-    const possibleConditions = data.possibleConditions.map((condition) => ({
+
+    // Process the conditions from the backend
+    const possibleConditions = data.possibleConditions.map(condition => ({
       name: condition.name,
       description: condition.description || "No description available",
       recommendations: condition.recommendations || [],
       tests: condition.tests || [],
-      urgency: determineUrgency(condition.name),  // Assign urgency dynamically
+      urgency: determineUrgency(condition.name),
     }));
-    
-    
+
     return {
       success: true,
       message: 'Diagnosis completed',
@@ -82,43 +74,6 @@ export const diagnoseFromSymptoms = async (symptoms) => {
 // Get all available symptoms for the UI
 export const getAllSymptoms = () => {
   return [
-    { id: 'itching', name: 'Itching' },
-    { id: 'skin_rash', name: 'Skin Rash' },
-    { id: 'nodal_skin_eruptions', name: 'Nodal Skin Eruptions' },
-    { id: 'continuous_sneezing', name: 'Continuous Sneezing' },
-    { id: 'shivering', name: 'Shivering' },
-    { id: 'chills', name: 'Chills' },
-    { id: 'joint_pain', name: 'Joint Pain' },
-    { id: 'stomach_pain', name: 'Stomach Pain' },
-    { id: 'acidity', name: 'Acidity' },
-    { id: 'ulcers_on_tongue', name: 'Ulcers on Tongue' },
-    { id: 'muscle_wasting', name: 'Muscle Wasting' },
-    { id: 'vomiting', name: 'Vomiting' },
-    { id: 'burning_micturition', name: 'Burning Micturition' },
-    { id: 'spotting_urination', name: 'Spotting Urination' },
-    { id: 'fatigue', name: 'Fatigue' },
-    { id: 'weight_gain', name: 'Weight Gain' },
-    { id: 'anxiety', name: 'Anxiety' },
-    { id: 'cold_hands_and_feets', name: 'Cold Hands and Feet' },
-    { id: 'mood_swings', name: 'Mood Swings' },
-    { id: 'weight_loss', name: 'Weight Loss' },
-    { id: 'restlessness', name: 'Restlessness' },
-    { id: 'lethargy', name: 'Lethargy' },
-    { id: 'patches_in_throat', name: 'Patches in Throat' },
-    { id: 'irregular_sugar_level', name: 'Irregular Sugar Level' },
-    { id: 'cough', name: 'Cough' },
-    { id: 'high_fever', name: 'High Fever' },
-    { id: 'sunken_eyes', name: 'Sunken Eyes' },
-    { id: 'breathlessness', name: 'Breathlessness' },
-    { id: 'sweating', name: 'Sweating' },
-    { id: 'dehydration', name: 'Dehydration' },
-    { id: 'indigestion', name: 'Indigestion' },
-    { id: 'headache', name: 'Headache' },
-    { id: 'yellowish_skin', name: 'Yellowish Skin' },
-    { id: 'dark_urine', name: 'Dark Urine' },
-    { id: 'nausea', name: 'Nausea' },
-    { id: 'loss_of_appetite', name: 'Loss of Appetite' },
-    { id: 'pain_behind_the_eyes', name: 'Pain Behind the Eyes' },
     { id: 'back_pain', name: 'Back Pain' },
     { id: 'constipation', name: 'Constipation' },
     { id: 'abdominal_pain', name: 'Abdominal Pain' },
@@ -212,18 +167,17 @@ export const getAllSymptoms = () => {
     { id: 'inflammatory_nails', name: 'Inflammatory Nails' },
     { id: 'blister', name: 'Blister' },
     { id: 'red_sore_around_nose', name: 'Red Sore Around Nose' },
-    { id: 'yellow_crust_ooze', name: 'Yellow Crust Ooze' },
+    { id: 'yellow_crust_ooze', name: 'Yellow Crust Ooze' }
   ];
 };
 
-// Mock function for image-based diagnosis
-
+// Image diagnosis function (if implemented in backend)
 export const diagnoseFromImage = async (imageFile) => {
   try {
     const formData = new FormData();
     formData.append("image", imageFile);
 
-    const response = await fetch("http://localhost:5000/analyze-image", {
+    const response = await fetch("https://aixplain-zmis.onrender.com/analyze-image", {
       method: "POST",
       body: formData,
     });

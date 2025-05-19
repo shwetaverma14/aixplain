@@ -7,7 +7,7 @@ import SymptomChecker from './pages/SymptomChecker'
 import ImageDiagnostic from './pages/ImageDiagnostic'
 import VoiceInput from './pages/VoiceInput'
 import HealthEducation from './pages/HealthEducation'
-import Settings from './pages/Settings'
+// import Settings from './pages/Settings'
 import { AppProvider } from './context/AppContext'
 import { loadData } from './utils/storage'
 import './App.css'
@@ -78,7 +78,7 @@ function App() {
               <Route path="/image-diagnostic" element={<ImageDiagnostic />} />
               <Route path="/voice-input" element={<VoiceInput />} />
               <Route path="/health-education" element={<HealthEducation />} />
-              <Route path="/settings" element={<Settings />} />
+              {/* <Route path="/settings" element={<Settings />} /> */}
             </Routes>
           </main>
           <Footer />

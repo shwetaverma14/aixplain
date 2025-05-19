@@ -21,9 +21,8 @@ function Footer() {
             <Link to="/health-education" className="text-sm hover:text-primary">
               Health Resources
             </Link>
-            <Link to="/settings" className="text-sm hover:text-primary">
-              Settings
-            </Link>
+            
+            
             <a href="#" className="text-sm hover:text-primary">
               Privacy Policy
             </a>

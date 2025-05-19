@@ -17,7 +17,7 @@ function Navbar() {
     { path: '/image-diagnostic', label: 'Image Diagnostic' },
     { path: '/voice-input', label: 'Voice Input' },
     { path: '/health-education', label: 'Health Education' },
-    { path: '/settings', label: 'Settings' }
+    // { path: '/settings', label: 'Settings' }
   ]
 
   return (
