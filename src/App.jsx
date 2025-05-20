@@ -17,11 +17,9 @@ function App() {
   const [isLoading, setIsLoading] = useState(true)
   const [userData, setUserData] = useState(null)
 
- useEffect(() => {
-    // Add Chrome detection
-    const isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor)
-    if (isChrome) {
-      document.body.classList.add('chrome')
+  useEffect(() => {
+    const handleOnlineStatus = () => {
+      setIsOnline(navigator.onLine)
     }
 
     window.addEventListener('online', handleOnlineStatus)
@@ -46,7 +44,6 @@ function App() {
     return () => {
       window.removeEventListener('online', handleOnlineStatus)
       window.removeEventListener('offline', handleOnlineStatus)
-      document.body.classList.remove('chrome')
     }
   }, [])
 

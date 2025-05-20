@@ -31,6 +31,7 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
+
 /* Dark Mode Scrollbar */
 .dark ::-webkit-scrollbar-track {
   background: #2d2d2d;
@@ -43,6 +44,7 @@
 .dark ::-webkit-scrollbar-thumb:hover {
   background: #777;
 }
+
 /* Voice input animation */
 .voice-wave {
   display: flex;
@@ -60,6 +62,7 @@
   border-radius: 50%;
   animation: voice-wave 1.5s infinite ease-in-out;
 }
+
 .dark .voice-wave span {
   background-color: #1E90FF;
 }
@@ -98,10 +101,12 @@
   transition: all 0.3s ease;
 }
 
-.image-upload-area:hover, .image-upload-area.active {
+.image-upload-area:hover, 
+.image-upload-area.active {
   border-color: #0D6EFD;
   background-color: rgba(13, 110, 253, 0.05);
 }
+
 /* Dark Mode */
 .dark .image-upload-area {
   border: 2px dashed #555;
@@ -109,10 +114,12 @@
   color: #ddd;
 }
 
-.dark .image-upload-area:hover, .dark .image-upload-area.active {
+.dark .image-upload-area:hover,
+.dark .image-upload-area.active {
   border-color: #0D6EFD;
   background-color: rgba(13, 110, 253, 0.1);
 }
+
 /* Symptom checker styles */
 .symptom-tag {
   display: inline-block;
@@ -133,6 +140,7 @@
   background-color: #0D6EFD;
   color: white;
 }
+
 /* Dark mode styles */
 .dark .symptom-tag {
   background-color: #333;
@@ -146,4 +154,29 @@
 .dark .symptom-tag.selected {
   background-color: #0D6EFD;
   color: white;
+}
+
+/* ===== BULLETPROOF PLACEHOLDER FIX ===== */
+input::placeholder,
+textarea::placeholder,
+input::-webkit-input-placeholder,
+textarea::-webkit-input-placeholder,
+input::-moz-placeholder,
+textarea::-moz-placeholder,
+input:-ms-input-placeholder,
+textarea:-ms-input-placeholder {
+  color: #767676 !important;
+  opacity: 1 !important;
+}
+
+/* Dark mode placeholder */
+.dark input::placeholder,
+.dark textarea::placeholder,
+.dark input::-webkit-input-placeholder,
+.dark textarea::-webkit-input-placeholder,
+.dark input::-moz-placeholder,
+.dark textarea::-moz-placeholder,
+.dark input:-ms-input-placeholder,
+.dark textarea:-ms-input-placeholder {
+  color: #a0a0a0 !important;
 }

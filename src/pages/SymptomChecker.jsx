@@ -131,7 +131,7 @@ function SymptomChecker() {
             <input
               type="text"
               id="symptom-search"
-              className="input-field"
+              className="bg-white text-black border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 w-full px-3 py-2"
               placeholder="Type to search symptoms..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -218,79 +218,78 @@ function SymptomChecker() {
       {/* Step 2: Patient Information */}
       {step === 2 && (
         <div className="card">
-          <h2 className="text-xl font-semibold mb-4">Patient Details</h2>
-
-          {/* Patient Info Form */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+  <div>
+    <label htmlFor="age" className="block text-sm font-medium text-gray-700 mb-1">
+      Age
+    </label>
+    <input
+      type="number"
+      id="age"
+      name="age"
+      className="bg-white text-black border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 w-full px-3 py-2"
+      placeholder="Enter age"
+      value={patientInfo.age}
+      onChange={handlePatientInfoChange}
+    />
+  </div>
             <div>
-              <label htmlFor="age" className="block text-sm font-medium text-gray-700 mb-1">
-                Age
-              </label>
-              <input
-                type="number"
-                id="age"
-                name="age"
-                className="input-field"
-                placeholder="Enter age"
-                value={patientInfo.age}
-                onChange={handlePatientInfoChange}
-              />
-            </div>
+  <label htmlFor="gender" className="block text-sm font-medium text-gray-700 mb-1">
+    Gender
+  </label>
+  <select
+    id="gender"
+    name="gender"
+    className="bg-white text-black border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 w-full px-3 py-2"
+    value={patientInfo.gender}
+    onChange={handlePatientInfoChange}
+  >
+    <option value="">Select gender</option>
+    <option value="male">Male</option>
+    <option value="female">Female</option>
+    <option value="other">Other</option>
+  </select>
+</div>
 
-            <div>
-              <label htmlFor="gender" className="block text-sm font-medium text-gray-700 mb-1">
-                Gender
-              </label>
-              <select
-                id="gender"
-                name="gender"
-                className="input-field"
-                value={patientInfo.gender}
-                onChange={handlePatientInfoChange}
-              >
-                <option value="">Select gender</option>
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
 
-            <div>
-              <label htmlFor="duration" className="block text-sm font-medium text-gray-700 mb-1">
-                Symptom Duration
-              </label>
-              <select
-                id="duration"
-                name="duration"
-                className="input-field"
-                value={patientInfo.duration}
-                onChange={handlePatientInfoChange}
-              >
-                <option value="">Select duration</option>
-                <option value="hours">Hours</option>
-                <option value="days">Days</option>
-                <option value="weeks">Weeks</option>
-                <option value="months">Months</option>
-                <option value="years">Years</option>
-              </select>
-            </div>
+           <div>
+  <label htmlFor="duration" className="block text-sm font-medium text-gray-700 mb-1">
+    Symptom Duration
+  </label>
+  <select
+    id="duration"
+    name="duration"
+    className="bg-white text-black border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 w-full px-3 py-2"
+    value={patientInfo.duration}
+    onChange={handlePatientInfoChange}
+  >
+    <option value="">Select duration</option>
+    <option value="hours">Hours</option>
+    <option value="days">Days</option>
+    <option value="weeks">Weeks</option>
+    <option value="months">Months</option>
+    <option value="years">Years</option>
+  </select>
+</div>
 
-            <div>
-              <label htmlFor="severity" className="block text-sm font-medium text-gray-700 mb-1">
-                Symptom Severity
-              </label>
-              <select
-                id="severity"
-                name="severity"
-                className="input-field"
-                value={patientInfo.severity}
-                onChange={handlePatientInfoChange}
-              >
-                <option value="mild">Mild</option>
-                <option value="moderate">Moderate</option>
-                <option value="severe">Severe</option>
-              </select>
-            </div>
+
+           <div>
+  <label htmlFor="severity" className="block text-sm font-medium text-gray-700 mb-1">
+    Symptom Severity
+  </label>
+  <select
+    id="severity"
+    name="severity"
+    className="bg-white text-black border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 w-full px-3 py-2"
+    value={patientInfo.severity}
+    onChange={handlePatientInfoChange}
+  >
+    <option value="mild">Mild</option>
+    <option value="moderate">Moderate</option>
+    <option value="severe">Severe</option>
+  </select>
+</div>
+
           </div>
 
           {/* Navigation Buttons */}

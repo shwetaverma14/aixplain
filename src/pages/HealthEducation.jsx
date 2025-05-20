@@ -186,36 +186,38 @@ function HealthEducation() {
             <h2 className="text-xl font-semibold mb-4">Search Schemes</h2>
             
             <div className="mb-4">
-              <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-1">
-                Search
-              </label>
-              <input
-                type="text"
-                id="search"
-                className="input-field"
-                placeholder="Search schemes..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
+  <label htmlFor="search" className="block text-sm font-medium text-gray-700 mb-1">
+    Search
+  </label>
+  <input
+    type="text"
+    id="search"
+    className="input-field bg-white text-black border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+    placeholder="Search schemes..."
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+  />
+</div>
+
             
             <div className="mb-4">
-              <label htmlFor="category" className="block text-sm font-medium text-white-700 mb-1">
-                Category
-              </label>
-              <select
-                id="category"
-                className="input-field"
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-              >
-                {categories.map(category => (
-                  <option key={category.id} value={category.id}>
-                    {category.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+  <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
+    Category
+  </label>
+  <select
+    id="category"
+    className="input-field bg-white text-black border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+    value={selectedCategory}
+    onChange={(e) => setSelectedCategory(e.target.value)}
+  >
+    {categories.map((category) => (
+      <option key={category.id} value={category.id}>
+        {category.name}
+      </option>
+    ))}
+  </select>
+</div>
+
           </div>
           
           <div className="card">
